@@ -1,0 +1,28 @@
+{
+    "name": "luminee/chariot",
+    "description": "Run chariot like artisan, and support project and db connection",
+    "type": "library",
+    "keywords": [
+        "chariot",
+        "artisan",
+        "script",
+        "multi-project",
+        "multi-conn"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "LuminEe",
+            "email": "1123462990@qq.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Luminee\\Chariot\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.1"
+    }
+}
