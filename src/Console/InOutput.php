@@ -1,21 +1,21 @@
 <?php
 
-namespace Luminee\Chariot\Core;
+namespace Luminee\Chariot\Console;
 
-use Luminee\Chariot\Foundations\Input;
-use Luminee\Chariot\Foundations\Output;
+use Luminee\Chariot\Console\Input\ArgvInput;
+use Luminee\Chariot\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 
 trait InOutput
 {
     /**
-     * @var Input
+     * @var ArgvInput
      */
     protected $input;
 
     /**
-     * @var Output
+     * @var ConsoleOutput
      */
     protected $output;
 

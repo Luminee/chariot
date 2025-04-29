@@ -1,24 +1,25 @@
 <?php
 
-namespace Luminee\Chariot\Foundations;
+namespace Luminee\Chariot\Console\Output;
 
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\ConsoleOutput as SymfonyConsoleOutput;
 
-class Output
+class ConsoleOutput extends SymfonyConsoleOutput
 {
     /**
      * @var OutputInterface
      */
     private $output;
 
-    public function __construct($app)
-    {
-        $output = $app->make(OutputInterface::class);
-        $this->output = new SymfonyStyle(new ArgvInput(), $output);
-    }
+//    public function __construct($app)
+//    {
+//        $output = $app->make(OutputInterface::class);
+//        $this->output = new SymfonyStyle(new ArgvInput(), $output);
+//    }
 
     public function getInterface()
     {
@@ -35,10 +36,10 @@ class Output
         return $this->output->confirm($question, $default);
     }
 
-    public function getFormatter()
-    {
-        return $this->output->getFormatter();
-    }
+//    public function getFormatter()
+//    {
+//        return $this->output->getFormatter();
+//    }
 
     public function newLine($count = 1)
     {
@@ -59,10 +60,10 @@ class Output
         return $this->output->choice($question, $choices, $default);
     }
 
-    public function writeln($messages, $type = OutputInterface::OUTPUT_NORMAL)
-    {
-        $this->output->writeln($messages, $type);
-    }
+//    public function writeln($messages, $type = OutputInterface::OUTPUT_NORMAL)
+//    {
+//        $this->output->writeln($messages, $type);
+//    }
 
     public function table(array $headers, array $rows)
     {

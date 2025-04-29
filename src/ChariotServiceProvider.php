@@ -9,8 +9,7 @@ class ChariotServiceProvider extends ServiceProvider
     /**
      * @var string
      */
-    protected $config = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
-    protected $src = __DIR__ . DIRECTORY_SEPARATOR;
+    protected $config = __DIR__ . '/../config';
 
     /**
      * Boot the service provider.
@@ -20,8 +19,8 @@ class ChariotServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([$this->config . 'chariot.php' => config_path('chariot.php')]);
-        $this->publishes([$this->src . 'chariot' => base_path('chariot')]);
-        $this->publishes([$this->src . '.conn.conf.php.example' => base_path('.conn.conf.php.example')]);
+        $this->publishes([__DIR__ . '/chariot' => base_path('chariot')]);
+        $this->publishes([__DIR__ . '/.conn.conf.php.example' => base_path('.conn.conf.php.example')]);
     }
 
     /**
@@ -31,8 +30,10 @@ class ChariotServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if (file_exists($this->config . 'chariot.php'))
+        $this->config = realpath($this->config) . DIRECTORY_SEPARATOR;
+        if (file_exists($this->config . 'chariot.php')) {
             $this->mergeConfigFrom($this->config . 'chariot.php', 'chariot');
+        }
     }
 
 }

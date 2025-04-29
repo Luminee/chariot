@@ -13,8 +13,9 @@
 - example : you want to make command `init:user` for `project` in module `user`
 - make file `InitUser.php` in `app/Console/Commands/Project/User` (according to config `script_namespace` in chariot.php)
 - file looks like:
+
 ```php
-use Luminee\Chariot\Core\Command;
+use Luminee\Chariot\Console\Command;
 
 class Init extends Command
 {

@@ -1,13 +1,11 @@
 {
     "name": "luminee/chariot",
-    "description": "Run chariot like artisan, and support project and db connection",
+    "description": "Evolutionary command provider",
     "type": "library",
     "keywords": [
         "chariot",
         "artisan",
-        "script",
-        "multi-project",
-        "multi-conn"
+        "script"
     ],
     "license": "MIT",
     "authors": [
@@ -22,7 +20,20 @@
         }
     },
     "minimum-stability": "dev",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Luminee\\Chariot\\ChariotServiceProvider"
+            ]
+        }
+    },
     "require": {
-        "php": ">=7.1"
+        "php": ">=7.0",
+        "laravel/framework": "5.5.*"
+    },
+    "config": {
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true
+        }
     }
 }
