@@ -24,12 +24,22 @@ class Chariot extends Application
     /**
      * @var string
      */
+    protected $project = null;
+
+    /**
+     * @var string
+     */
     protected $scripts_dir = null;
 
     /**
      * @var string
      */
     protected $connection_separator = '';
+
+    /**
+     * @var string
+     */
+    protected $directory_separator = '';
 
     /**
      * Bootstrap the console application.
@@ -41,6 +51,7 @@ class Chariot extends Application
         $this->scripts_dir = realpath(config('chariot.scripts_dir'));
 
         $this->connection_separator = config('chariot.signature.connection_separator');
+        $this->directory_separator = config('chariot.signature.directory_separator');
 
         $this->db = $this->laravel->get('db');
 
@@ -56,7 +67,7 @@ class Chariot extends Application
         if (!empty($extra_connections)) {
             $this->laravel['config']['database.connections'] = array_merge(
                 $this->laravel['config']['database.connections'],
-                $$this->handleExtraConnections($extra_connections)
+                $this->handleExtraConnections($extra_connections)
             );
         }
     }
@@ -146,6 +157,12 @@ class Chariot extends Application
     {
         if (stristr($name, $this->connection_separator)) {
             list($name, $connection) = explode($this->connection_separator, $name);
+            list($directory) = explode($this->directory_separator, $name);
+
+            if (!empty($directory)) {
+                list($project) = explode('.', $directory);
+                $this->project = strtolower($project);
+            }
 
             $this->connection = $connection;
         }
@@ -167,9 +184,11 @@ class Chariot extends Application
             return parent::doRunCommand($command, $input, $output);
         }
 
+        $connection = empty($this->project) ? $this->connection : $this->project . '_' . $this->connection;
+
         $previousConnection = $this->db->getDefaultConnection();
 
-        $this->db->setDefaultConnection($this->connection ?? $previousConnection);
+        $this->db->setDefaultConnection($connection);
 
         return tap(parent::doRunCommand($command, $input, $output), function () use ($previousConnection) {
             $this->db->setDefaultConnection($previousConnection);

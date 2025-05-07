@@ -3,6 +3,7 @@
 namespace Luminee\Chariot;
 
 use Illuminate\Support\ServiceProvider;
+use Luminee\Chariot\Commands\MakeScriptCommand;
 
 class ChariotServiceProvider extends ServiceProvider
 {
@@ -20,7 +21,10 @@ class ChariotServiceProvider extends ServiceProvider
     {
         $this->publishes([$this->config . 'chariot.php' => config_path('chariot.php')]);
         $this->publishes([__DIR__ . '/chariot' => base_path('chariot')]);
-        $this->publishes([__DIR__ . '/.conn.conf.php.example' => base_path('.conn.conf.php.example')]);
+
+        $this->commands([
+            MakeScriptCommand::class
+        ]);
     }
 
     /**
@@ -35,5 +39,4 @@ class ChariotServiceProvider extends ServiceProvider
             $this->mergeConfigFrom($this->config . 'chariot.php', 'chariot');
         }
     }
-
 }

@@ -7,9 +7,6 @@ use ReflectionClass;
 
 abstract class Command extends IlluminateCommand
 {
-    //    use PdoBuilder, RedisBuilder, InOutput, DBBuilder;
-
-
     /**
      * @var string
      */
@@ -46,10 +43,16 @@ abstract class Command extends IlluminateCommand
         $separator = DIRECTORY_SEPARATOR;
 
         $ref = new ReflectionClass($this);
+        if (strpos($ref->getFileName(), $this->scripts_dir) === false) {
+            return;
+        }
         $file = str_replace($this->scripts_dir . $separator, '', $ref->getFileName());
 
         $x = explode($separator, $file);
         array_pop($x);
+        if (count($x) <= 0) {
+            return;
+        }
         $directory = strtolower(implode('.', $x));
 
         $this->signature = $directory . $this->directory_separator . $this->signature;
