@@ -19,7 +19,7 @@
             "Luminee\\Chariot\\": "src/"
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "extra": {
         "laravel": {
             "providers": [
@@ -29,7 +29,8 @@
     },
     "require": {
         "php": ">=7.0",
-        "laravel/framework": "5.5.*"
+        "laravel/framework": "5.5.*",
+        "luminee/switcher": "0.5.5.*"
     },
     "config": {
         "allow-plugins": {

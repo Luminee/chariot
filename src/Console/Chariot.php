@@ -4,6 +4,7 @@ namespace Luminee\Chariot\Console;
 
 use Illuminate\Console\Application;
 use Illuminate\Database\DatabaseManager;
+use Luminee\Switcher\Facades\Switcher;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,56 +49,18 @@ class Chariot extends Application
      */
     protected function bootstrap()
     {
-        $this->scripts_dir = realpath(config('chariot.scripts_dir'));
+        $scripts_dir = config('chariot.scripts_dir');
+        if (!file_exists($scripts_dir)) {
+            mkdir($scripts_dir, 0755, true);
+        }
+        $this->scripts_dir = realpath($scripts_dir);
 
         $this->connection_separator = config('chariot.signature.connection_separator');
         $this->directory_separator = config('chariot.signature.directory_separator');
 
         $this->db = $this->laravel->get('db');
 
-        $this->appendExtraConnections();
-
         parent::bootstrap();
-    }
-
-    protected function appendExtraConnections()
-    {
-        $extra_connections = config('chariot.extra_connections');
-
-        if (!empty($extra_connections)) {
-            $this->laravel['config']['database.connections'] = array_merge(
-                $this->laravel['config']['database.connections'],
-                $this->handleExtraConnections($extra_connections)
-            );
-        }
-    }
-
-    protected function handleExtraConnections($extra_connections)
-    {
-        $connections = [];
-        foreach ($extra_connections as $name => $config) {
-            $name = strtolower($name);
-            if ($this->isConnectionConfig($config)) {
-                $connections[$name] = $config;
-            } else {
-                foreach ($config as $conn => $connection_config) {
-                    $connections[$name . '_' . $conn] = $connection_config;
-                }
-            }
-        }
-
-        return $connections;
-    }
-
-    protected function isConnectionConfig($config)
-    {
-        foreach ($config as $value) {
-            if (!is_array($value)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -157,9 +120,9 @@ class Chariot extends Application
     {
         if (stristr($name, $this->connection_separator)) {
             list($name, $connection) = explode($this->connection_separator, $name);
-            list($directory) = explode($this->directory_separator, $name);
 
-            if (!empty($directory)) {
+            if (stristr($name, $this->directory_separator)) {
+                list($directory) = explode($this->directory_separator, $name);
                 list($project) = explode('.', $directory);
                 $this->project = strtolower($project);
             }
@@ -184,14 +147,10 @@ class Chariot extends Application
             return parent::doRunCommand($command, $input, $output);
         }
 
-        $connection = empty($this->project) ? $this->connection : $this->project . '_' . $this->connection;
+        $connection = (empty($this->project) ? '' : $this->project . '_') . $this->connection;
 
-        $previousConnection = $this->db->getDefaultConnection();
-
-        $this->db->setDefaultConnection($connection);
-
-        return tap(parent::doRunCommand($command, $input, $output), function () use ($previousConnection) {
-            $this->db->setDefaultConnection($previousConnection);
-        });
+        return Switcher::run(function () use ($command, $input, $output) {
+            return parent::doRunCommand($command, $input, $output);
+        }, $connection);
     }
 }
