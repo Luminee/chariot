@@ -1,17 +1,29 @@
 <?php
 
 return [
-    'conn_conf' => base_path() . '/.conn.conf.php',
 
-    'script_namespace' => 'App\Console\Commands\\',
+    /*
+    |--------------------------------------------------------------------------
+    | Chariot Scripts Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure Chariot scripts directory.
+    |
+    */
+    'scripts_dir' => base_path() . '/database/scripts/',
 
-    'multi_pdo' => [
-        'project' => [
-            'online' => [
-                'r' => 'online_read',
-                'w' => 'online_write'
-            ]
-        ]
+    /*
+    |--------------------------------------------------------------------------
+    | Chariot Signature Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure Chariot signature.
+    |
+    */
+    'signature' => [
+
+        'directory_separator' => '#',
+
+        'connection_separator' => '@',
     ],
-
 ];
