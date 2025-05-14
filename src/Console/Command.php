@@ -3,10 +3,12 @@
 namespace Luminee\Chariot\Console;
 
 use Illuminate\Console\Command as IlluminateCommand;
-use ReflectionClass;
+use Luminee\Chariot\Console\Concerns\InputDefinition;
 
 abstract class Command extends IlluminateCommand
 {
+    use InputDefinition;
+
     /**
      * @var string
      */
@@ -24,6 +26,8 @@ abstract class Command extends IlluminateCommand
         $this->directory_separator = config('chariot.signature.directory_separator');
 
         parent::__construct();
+
+        $this->addOptions();
     }
 
     /**
@@ -36,25 +40,5 @@ abstract class Command extends IlluminateCommand
         $this->getChariotSignature();
 
         parent::configureUsingFluentDefinition();
-    }
-
-    protected function getChariotSignature()
-    {
-        $separator = DIRECTORY_SEPARATOR;
-
-        $ref = new ReflectionClass($this);
-        if (strpos($ref->getFileName(), $this->scripts_dir) === false) {
-            return;
-        }
-        $file = str_replace($this->scripts_dir . $separator, '', $ref->getFileName());
-
-        $x = explode($separator, $file);
-        array_pop($x);
-        if (count($x) <= 0) {
-            return;
-        }
-        $directory = strtolower(implode('.', $x));
-
-        $this->signature = $directory . $this->directory_separator . $this->signature;
     }
 }

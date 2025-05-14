@@ -147,10 +147,8 @@ class Chariot extends Application
             return parent::doRunCommand($command, $input, $output);
         }
 
-        $connection = (empty($this->project) ? '' : $this->project . '_') . $this->connection;
-
         return Switcher::run(function () use ($command, $input, $output) {
             return parent::doRunCommand($command, $input, $output);
-        }, $connection);
+        }, (empty($this->project) ? '' : $this->project . '_') . $this->connection);
     }
 }
