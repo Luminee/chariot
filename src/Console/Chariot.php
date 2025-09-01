@@ -89,10 +89,44 @@ class Chariot extends Application
                 $this->loadScript($dir, $f);
             }
         } else {
-            $command = require_once $path . '/' . $file;
-
-            $this->add($command);
+            $command = $this->instanceScript($path . '/' . $file);
+            if ($command instanceof Command) {
+                $this->add($command);
+            }
         }
+    }
+
+    protected function instanceScript($file)
+    {
+        $className = $this->getScriptClassname($file);
+        $command = require_once $file;
+        if (!is_null($className)) {
+            $command = new $className;
+        }
+        return $command;
+    }
+
+    protected function getScriptClassname($file)
+    {
+        $namespace = $className = '';
+        $tokens = token_get_all(file_get_contents($file));
+        foreach ($tokens as $key => $token) {
+            // 提取命名空间
+            if ($token[0] === T_NAMESPACE) {
+                for ($i = $key + 1; $i < count($tokens); $i++) {
+                    if ($tokens[$i] === ';') break;
+                    if (is_array($tokens[$i])) {
+                        $namespace .= $tokens[$i][1];
+                    }
+                }
+            }
+            // 提取类名（只取第一个类）
+            if ($token[0] === T_CLASS && !empty($namespace)) {
+                $className = $tokens[$key + 2][1]; // T_CLASS 后第2个token是类名
+                return trim(trim($namespace), '\\') . '\\' . $className;
+            }
+        }
+        return null;
     }
 
     /**
