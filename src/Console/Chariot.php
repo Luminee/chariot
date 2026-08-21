@@ -4,7 +4,6 @@ namespace Luminee\Chariot\Console;
 
 use Illuminate\Console\Application;
 use Illuminate\Database\DatabaseManager;
-use Luminee\Switcher\Facades\Switcher;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -99,7 +98,7 @@ class Chariot extends Application
     protected function instanceScript($file)
     {
         $className = $this->getScriptClassname($file);
-        $command = require_once $file;
+        $command = require $file;
         if (!is_null($className)) {
             $command = new $className;
         }
@@ -181,8 +180,24 @@ class Chariot extends Application
             return parent::doRunCommand($command, $input, $output);
         }
 
-        return Switcher::run(function () use ($command, $input, $output) {
+        $connectionName = (empty($this->project) ? '' : $this->project . '_') . $this->connection;
+
+        // 如果安装了 luminee/switcher，使用它来切换连接（支持 extra_connections）
+        if ($this->laravel->bound('switcher')) {
+            return $this->laravel->make('switcher')
+                ->run(function () use ($command, $input, $output) {
+                    return parent::doRunCommand($command, $input, $output);
+                }, $connectionName);
+        }
+
+        // Fallback: 直接切换数据库连接
+        $previous = $this->db->getDefaultConnection();
+        $this->db->setDefaultConnection($connectionName);
+
+        try {
             return parent::doRunCommand($command, $input, $output);
-        }, (empty($this->project) ? '' : $this->project . '_') . $this->connection);
+        } finally {
+            $this->db->setDefaultConnection($previous);
+        }
     }
 }

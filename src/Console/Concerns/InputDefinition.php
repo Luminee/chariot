@@ -10,7 +10,7 @@ trait InputDefinition
     protected function addOptions()
     {
         $this->getDefinition()->addOption(
-            new InputOption('--run', '-r', InputOption::VALUE_NONE, 'Run the command')
+            new InputOption('run', 'r', InputOption::VALUE_NONE, 'Run the command')
         );
     }
 

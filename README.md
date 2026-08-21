@@ -1,82 +1,114 @@
-# Chariot - Laravel 脚本管理工具
+# Chariot
 
-Chariot 是一个专为 Laravel 框架设计的脚本管理扩展包，提供以下核心功能：
+Laravel 脚本管理工具 —— 脚本文件按目录自动组织签名，支持在签名中直接指定数据库连接。
 
-## 主要特性
+## 安装
 
-- 🚀 自动化脚本命令生成
-- 🔗 多数据库连接管理
-- 📂 结构化脚本目录管理
-- 🛠️ 命令行工具集成
-
-## 安装指南
-
-1. 通过 Composer 安装包：
 ```bash
 composer require luminee/chariot
 ```
 
-2. 发布配置文件：
+如需多连接支持（`extra_connections`），建议同时安装 Switcher：
+
 ```bash
-php artisan vendor:publish --provider="Luminee\Chariot\ChariotServiceProvider"
+composer require luminee/switcher
 ```
 
-## 配置说明
+## 快速开始
 
-编辑 `config/chariot.php` 文件：
+### 1. 替换 Kernel
+
+在 `bootstrap/app.php` 中绑定 Chariot Kernel：
 
 ```php
+$app->singleton(
+    Luminee\Chariot\Contracts\Console\Kernel::class,
+    class_exists('App\\Console\\Kernel') ?
+        Luminee\Chariot\Console\KernelArtisan::class :
+        Luminee\Chariot\Console\KernelChariot::class
+);
+```
+
+或者直接使用 Chariot 入口脚本（发布后在项目根目录）：
+
+```bash
+php chariot trade.order#sync@dev
+```
+
+### 2. 发布配置
+
+```bash
+php artisan vendor:publish --provider="Luminee\\Chariot\\ChariotServiceProvider"
+```
+
+### 3. 配置
+
+```php
+// config/chariot.php
 return [
-    'scripts_dir' => base_path('database/scripts'), // 脚本存储目录
+    'scripts_dir' => base_path('database/scripts'),
+
     'signature' => [
-        'directory_separator' => '#', // 目录分隔符
-        'connection_separator' => '@' // 连接分隔符
+        'directory_separator' => '#',   // 目录前缀与签名之间的分隔符
+        'connection_separator' => '@',  // 签名与连接名之间的分隔符
     ],
-    'extra_connections' => [] // 额外数据库连接配置
 ];
 ```
 
-## 使用示例
+## 使用
 
-### 创建新脚本
+### 创建脚本
 
-使用命令行工具生成脚本模板：
 ```bash
-php artisan chariot:make:script init:user \
-    --project=Project \
-    --module=User
+php artisan chariot:make:script sync:orders --project=trade --module=order
 ```
 
-### 脚本文件结构
+生成 `database/scripts/trade/order/2024_01_01_000000_sync_orders.php`：
 
-生成的脚本文件示例：
 ```php
-<?php
-
 use Luminee\Chariot\Console\Command;
 
 return new class extends Command {
-    protected $signature = 'init:user';
+    protected $signature = 'sync:orders';
 
-    public function handle() {
-        // 脚本逻辑实现
+    public function handle()
+    {
+        // 脚本逻辑
     }
 };
 ```
 
-### 运行脚本
+### 签名规则
 
-执行特定脚本：
-```bash
-php artisan project.user#init:user@dev
+脚本文件所在的目录路径自动映射为签名前缀：
+
+```
+database/scripts/trade/order/  →  trade.order#
 ```
 
-## 高级功能
+最终签名 = `trade.order#` + 原始签名 `sync:orders` = `trade.order#sync:orders`。
 
-- 支持多层级模块目录结构
-- 可配置的签名分隔符
-- 动态数据库连接管理
+### 指定连接
 
-## 贡献指南
+```bash
+php artisan trade.order#sync:orders@dev
+```
 
-欢迎提交 Pull Request 或报告 Issues。
+- `#` 分隔目录前缀与命令签名
+- `@` 分隔签名与数据库连接名
+- 安装了 `luminee/switcher` 时，使用其切换连接（支持 `extra_connections`）
+- 未安装时，直接使用 Laravel 原生的 `DB::setDefaultConnection()`
+
+### `--run` 选项
+
+所有 Chariot 脚本自动获得 `--run` / `-r` 选项，用于区分预览和执行模式。
+
+## 依赖
+
+| 包 | 关系 | 说明 |
+|---|---|---|
+| `luminee/switcher` | 可选 | 安装后支持 `extra_connections` |
+
+## License
+
+MIT
