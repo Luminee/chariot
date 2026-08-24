@@ -2,16 +2,11 @@
 
 namespace Luminee\Chariot;
 
-use Illuminate\Support\ServiceProvider;
 use Luminee\Chariot\Commands\MakeScriptCommand;
+use Luminee\Foundry\Abstracts\ServiceProvider;
 
 class ChariotServiceProvider extends ServiceProvider
 {
-    /**
-     * @var string
-     */
-    protected $config = __DIR__ . '/../config';
-
     /**
      * Boot the service provider.
      *
@@ -19,7 +14,8 @@ class ChariotServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([$this->config . 'chariot.php' => config_path('chariot.php')]);
+        $this->publishConfig();
+
         $this->publishes([__DIR__ . '/chariot' => base_path('chariot')]);
 
         $this->commands([
@@ -34,9 +30,8 @@ class ChariotServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->config = realpath($this->config) . DIRECTORY_SEPARATOR;
-        if (file_exists($this->config . 'chariot.php')) {
-            $this->mergeConfigFrom($this->config . 'chariot.php', 'chariot');
-        }
+        $this->registerVendor(__DIR__ . '/../', 'chariot');
+
+        $this->mergeConfig();
     }
 }
