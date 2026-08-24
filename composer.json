@@ -29,10 +29,10 @@
     },
     "require": {
         "php": ">=7.0",
-        "laravel/framework": "5.5.*"
+        "laravel/framework": ">=5.5"
     },
     "suggest": {
-        "luminee/switcher": "0.5.5.* Required for multi-connection support"
+        "luminee/switcher": "^0.6 Required for multi-connection support"
     },
     "config": {
         "allow-plugins": {
